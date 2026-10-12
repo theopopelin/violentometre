@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: violentometre-extractor
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      RIOT_API_KEY: ${RIOT_API_KEY}
     volumes:
       - ./data:/app/data
     init: true
