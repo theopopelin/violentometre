@@ -1,0 +1,7 @@
+.env
+secrets.env
+data/
+__pycache__/
+*.py[cod]
+.venv/
+venv/

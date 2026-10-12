@@ -1,0 +1,12 @@
+services:
+  extractor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: violentometre-extractor
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    init: true
