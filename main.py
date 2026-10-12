@@ -208,13 +208,14 @@ def collect_all():
 
 async def scheduled_collection():
     async with collection_lock:
+        logging.info("Début de la collecte.")
         await asyncio.to_thread(collect_all)
-
+        logging.info("Fin de la collecte.")
 
 @aiocron.crontab("*/5 * * * *")
 async def cron_collection():
+    logging.info("Déclenchement du cron.")
     await scheduled_collection()
-
 
 async def main():
     logging.info("Configuration Riot Games chargée.")
