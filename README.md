@@ -1,6 +1,6 @@
 # Le Violentomètre
 
-A lightweight **Dark Harvest tracker** focused on rune activations in League of Legends ranked games.
+A lightweight **Souls tracker** focused on Dark Harvest rune activations in League of Legends ranked games.
 
 - Tracks Dark Harvest activations across Solo/Duo and Flex games.
 - Stores player statistics in JSON.
@@ -16,11 +16,37 @@ A lightweight **Dark Harvest tracker** focused on rune activations in League of 
 
    Alternatively, provide the API key through the `RIOT_API_KEY` environment variable.
 
-2. Start the collector with Docker Compose:
+2. Kickstart with Docker Compose:
 
    ```bash
    docker compose up -d --build
    ```
+
+## Usage
+
+### Add a player
+
+Add a League of Legends account using its Riot ID:
+
+```bash
+docker compose exec extractor python add_player.py "Summoner#TAG"
+```
+
+Replace `Summoner#TAG` with the player's Riot ID.
+
+### View logs
+
+Follow the collector logs in real time:
+
+```bash
+docker compose logs -f extractor
+```
+
+Display the last 100 lines of logs:
+
+```bash
+docker compose logs --tail=100 extractor
+```
 
 ## Legal boilerplate
 
