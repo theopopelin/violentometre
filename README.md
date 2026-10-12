@@ -1,4 +1,4 @@
-# Violentomètre
+# Le Violentomètre
 
 A lightweight **Dark Harvest tracker** focused on rune activations in League of Legends ranked games.
 
