@@ -6,6 +6,8 @@ A lightweight **Souls tracker** focused on Dark Harvest rune activations in Leag
 - Stores player statistics in JSON.
 - Automatically collects match data every 5 minutes for tracked players.
 
+Base version works for EUW, this can be changed inside the main.py file
+
 ## Setup
 
 1. Create a `.env` file with your Riot API key:
