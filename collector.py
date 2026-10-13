@@ -1,6 +1,10 @@
 import json
 import logging
+import os
 from pathlib import Path
+
+import boto3
+from botocore.config import Config
 
 from riot_api import get_match_ids, get_match
 
@@ -18,6 +22,7 @@ def load_data():
         return json.load(file)
 
 
+# Temp file update to avoid corrupting data on error
 def save_data(data):
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -27,6 +32,29 @@ def save_data(data):
         json.dump(data, file, indent=2, ensure_ascii=False)
 
     temporary_file.replace(DATA_FILE)
+
+
+def upload_to_r2():
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.environ["R2_ENDPOINT_URL"],
+        aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
+        region_name="auto",
+        config=Config(
+            signature_version="s3v4",
+            retries={"max_attempts": 3, "mode": "standard"},
+        ),
+    )
+
+    client.upload_file(
+        str(DATA_FILE),
+        os.environ["R2_BUCKET_NAME"],
+        "players.json",
+        ExtraArgs={"ContentType": "application/json"},
+    )
+
+    logging.info("players.json uploaded to Cloudflare R2.")
 
 
 def get_dark_harvest_procs(participant):
@@ -46,13 +74,12 @@ def process_player(puuid, player):
 
     if not match_ids:
         logging.info(
-            "%s : aucune nouvelle partie.",
+            "%s : no new matches.",
             player["username"]
         )
         return False
 
-    # L'API renvoie les parties de la plus récente à la plus ancienne.
-    # On les traite dans l'ordre chronologique.
+    # API sends latest matches in chronological order
     match_ids.reverse()
 
     for match_id in match_ids:
@@ -61,13 +88,13 @@ def process_player(puuid, player):
 
         queue_id = info.get("queueId")
 
-        # Solo/Duo : 420 ; Flex : 440.
+        # Solo/Duo : 420, Flex : 440
         if queue_id not in (420, 440):
             player["last_game_end"] = info.get("gameEndTimestamp")
             player["last_game_id"] = match_id
 
             logging.info(
-                "%s | %s | Partie ignorée (queueId=%s)",
+                "%s | %s | Match ignored (queueId=%s)",
                 player["username"],
                 match_id,
                 queue_id
@@ -85,7 +112,7 @@ def process_player(puuid, player):
 
         if participant is None:
             raise ValueError(
-                f"Participant {puuid} introuvable dans {match_id}"
+                f"Player {puuid} not found in {match_id}"
             )
 
         procs = get_dark_harvest_procs(participant)
@@ -123,15 +150,23 @@ def collect_all():
             if process_player(puuid, player):
                 save_data(data)
                 logging.info(
-                    "Données sauvegardées dans %s.",
+                    "Data saved in %s.",
                     DATA_FILE
                 )
 
         except Exception:
-            # Préserve les modifications effectuées avant une erreur.
+            # Saves modifications before error
             save_data(data)
 
             logging.exception(
                 "Erreur de collecte pour %s",
                 player.get("username", puuid)
             )
+
+    # Upload the latest local JSON after processing all players
+    try:
+        upload_to_r2()
+    except Exception:
+        logging.exception(
+            "Failed to upload players.json to Cloudflare R2."
+        )
