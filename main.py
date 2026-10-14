@@ -11,42 +11,42 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-logging.info("Violentometre : extractor on.")
+logging.info("Violentometre Reqviem : they all sang along")
 
 collection_lock = asyncio.Lock()
 
 
 async def scheduled_collection():
     async with collection_lock:
-        logging.info("Début de la collecte.")
+        logging.info("Start extraction.")
 
         try:
             await asyncio.to_thread(collect_all)
         except Exception:
-            logging.exception("Erreur générale pendant la collecte.")
+            logging.exception("Error during extraction.")
         finally:
-            logging.info("Fin de la collecte.")
+            logging.info("End extraction.")
 
 
 async def cron_collection():
-    logging.info("Déclenchement du cron.")
+    logging.info("Cron start")
     await scheduled_collection()
 
 
 async def main():
-    logging.info("Configuration Riot Games chargée.")
+    logging.info("Riot games config in.")
 
-    # Utilise la boucle asyncio actuellement active.
+    # Uses current running asyncio 
     cron = aiocron.crontab(
         "*/5 * * * *",
         func=cron_collection,
         loop=asyncio.get_running_loop()
     )
 
-    # Collecte immédiate au démarrage.
+    # Extraction at process start
     await scheduled_collection()
 
-    # Garde l'application en fonctionnement.
+    # Keeps it up and so should you
     await asyncio.Event().wait()
 
 

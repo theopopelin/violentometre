@@ -23,12 +23,12 @@ def riot_request(url):
 
 def add_player(riot_id):
     if "#" not in riot_id:
-        raise ValueError("Format attendu : Pseudo#TAG")
+        raise ValueError("Format : Pseudo#TAG")
 
     game_name, tag_line = riot_id.rsplit("#", 1)
 
     if not game_name or not tag_line:
-        raise ValueError("Format attendu : Pseudo#TAG")
+        raise ValueError("Format : Pseudo#TAG")
 
     url = (
         "https://europe.api.riotgames.com"
@@ -50,7 +50,7 @@ def add_player(riot_id):
         data = {"players": {}}
 
     if puuid in data["players"]:
-        print(f"{username} est déjà enregistré.")
+        print(f"{username} is already tracked.")
         return
 
     data["players"][puuid] = {

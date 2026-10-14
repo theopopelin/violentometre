@@ -28,15 +28,14 @@ def get_match_ids(puuid, last_game_id):
         f"/lol/match/v5/matches/by-puuid/{puuid}/ids"
     )
 
-    # Première collecte : récupérer les 5 dernières parties.
+    # First extraction
     if not last_game_id:
         return riot_request(
             url,
             params={"start": 0, "count": INITIAL_MATCH_COUNT}
         )
 
-    # Collectes suivantes : récupérer les parties jusqu'à
-    # retrouver la dernière partie déjà traitée.
+    # Next extractions : verify matches up to the last update
     match_ids = []
     start = 0
 
