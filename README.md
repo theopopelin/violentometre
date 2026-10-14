@@ -5,9 +5,11 @@ A lightweight **Souls tracker** focused on Dark Harvest rune activations in Leag
 - Tracks Dark Harvest activations across Solo/Duo and Flex games.
 - Stores player statistics in JSON.
 - Automatically collects match data every 5 minutes for tracked players.
+- Uploads the JSON data to a Cloudflare R2 bucket for public access.
 
-API limitations might require you to tweak the cron activation frequency according to the amount of players you're tracking,
-Base version works for EUW, this can be changed inside the main.py file
+API limitations might require you to tweak the cron activation frequency according to the amount of players you're tracking, this can be changed in the cron in `main.py`
+
+Base version works for EUW, this can be changed in `riot_api.py`
 
 ## Setup
 
@@ -19,7 +21,29 @@ Base version works for EUW, this can be changed inside the main.py file
 
    Alternatively, provide the API key through the `RIOT_API_KEY` environment variable.
 
-2. Kickstart with Docker Compose:
+2. Configure Cloudflare R2 (optional)
+
+To enable JSON uploads, configure the following environment variables in your .env file:
+
+   ```env
+   R2_ACCOUNT_ID=your_account_id
+   R2_ACCESS_KEY_ID=your_r2_access_key_id
+   R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+   R2_BUCKET_NAME=your_bucket_name
+   R2_ENDPOINT_URL=https://your_account_id.r2.cloudflarestorage.com
+   ```
+
+Create an R2 bucket on Cloudflare, generate your keys, replace the placeholder values with your creds.
+This bucket must be configured for public access if you need/want it to be public, by default it's not.
+Account ID isn't currently used but might be useful for future features. (perhaps).
+
+Disabling Cloudflare R2
+
+If you don't need remote JSON hosting, you can remove the upload functionality by modifying `collector.py` and getting rid of the `upload_to_r2()` method. The collector will continue to store player statistics locally in `data/players.json`.
+
+Obviously don't commit your `.env` file or expose your R2 credentials.
+
+3. Kickstart with Docker Compose:
 
    ```bash
    docker compose up -d --build
