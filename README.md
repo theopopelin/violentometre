@@ -15,11 +15,11 @@ Base version works for EUW, this can be changed in `riot_api.py`
 
 1. Create a `.env` file with your Riot API key:
 
-   ```env
-   RIOT_API_KEY=your_riot_api_key
-   ```
+```env
+RIOT_API_KEY=your_riot_api_key
+```
 
-   Alternatively, provide the API key through the `RIOT_API_KEY` environment variable.
+Alternatively, provide the API key through the `RIOT_API_KEY` environment variable.
 
 2. Configure Cloudflare R2 (optional)
 
