@@ -45,9 +45,9 @@ Obviously don't commit your `.env` file or expose your R2 credentials.
 
 3. Kickstart with Docker Compose:
 
-   ```bash
-   docker compose up -d --build
-   ```
+```bash
+docker compose up -d --build
+```
 
 ## Usage
 
