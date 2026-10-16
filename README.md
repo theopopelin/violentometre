@@ -23,7 +23,7 @@ Alternatively, provide the API key through the `RIOT_API_KEY` environment variab
 
 2. Configure Cloudflare R2 (optional)
 
-To enable JSON uploads, configure the following environment variables in your .env file:
+To enable JSON uploads, configure the following environment variables in your `.env` file:
 
    ```env
    R2_ACCOUNT_ID=your_account_id
