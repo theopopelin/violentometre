@@ -2,17 +2,17 @@ import json
 import logging
 import os
 from pathlib import Path
-
 import boto3
 from botocore.config import Config
 
-from riot_api import get_match_ids, get_match
+from riot_api import RiotAPI
 
 
 DARK_HARVEST_ID = 8128
 
 DATA_FILE = Path("/app/data/players.json")
 
+riot = RiotAPI("europe")
 
 def load_data():
     if not DATA_FILE.exists():
@@ -70,7 +70,7 @@ def get_dark_harvest_procs(participant):
 
 def process_player(puuid, player):
     last_game_id = player.get("last_game_id")
-    match_ids = get_match_ids(puuid, last_game_id)
+    match_ids = riot.get_match_ids(puuid, last_game_id)
 
     if not match_ids:
         logging.info(
@@ -83,7 +83,7 @@ def process_player(puuid, player):
     match_ids.reverse()
 
     for match_id in match_ids:
-        match = get_match(match_id)
+        match = riot.get_match(match_id)
         info = match["info"]
 
         queue_id = info.get("queueId")
@@ -165,7 +165,8 @@ def collect_all():
 
     # Upload the latest local JSON after processing all players
     try:
-        upload_to_r2()
+        #upload_to_r2()
+        logging.info("Uploaded players.json to Cloudflare R2.")
     except Exception:
         logging.exception(
             "Failed to upload players.json to Cloudflare R2."

@@ -2,70 +2,70 @@ import os
 import requests
 
 
-API_KEY = os.environ["RIOT_API_KEY"]
-
-REGION = "europe"
-
 MATCH_COUNT = 100
 INITIAL_MATCH_COUNT = 5
 
 
-def riot_request(url, params=None):
-    response = requests.get(
-        url,
-        headers={"X-Riot-Token": API_KEY},
-        params=params,
-        timeout=20
-    )
+class RiotAPI:
+    def __init__(self, region):
+        self.api_key = os.environ["RIOT_API_KEY"]
+        self.region = region
+        self.session = requests.Session()
 
-    response.raise_for_status()
-    return response.json()
-
-
-def get_match_ids(puuid, last_game_id):
-    url = (
-        f"https://{REGION}.api.riotgames.com"
-        f"/lol/match/v5/matches/by-puuid/{puuid}/ids"
-    )
-
-    # First extraction
-    if not last_game_id:
-        return riot_request(
+    def riot_request(self, url, params=None):
+        response = self.session.get(
             url,
-            params={"start": 0, "count": INITIAL_MATCH_COUNT}
+            headers={"X-Riot-Token": self.api_key},
+            params=params,
+            timeout=20
         )
 
-    # Next extractions : verify matches up to the last update
-    match_ids = []
-    start = 0
+        response.raise_for_status()
+        return response.json()
 
-    while True:
-        page = riot_request(
-            url,
-            params={"start": start, "count": MATCH_COUNT}
+    def get_match_ids(self, puuid, last_game_id):
+        url = (
+            f"https://{self.region}.api.riotgames.com"
+            f"/lol/match/v5/matches/by-puuid/{puuid}/ids"
         )
 
-        if not page:
-            break
+        # First extraction
+        if not last_game_id:
+            return self.riot_request(
+                url,
+                params={"start": 0, "count": INITIAL_MATCH_COUNT}
+            )
 
-        if last_game_id in page:
-            match_ids.extend(page[:page.index(last_game_id)])
-            break
+        # Next extractions : verify matches up to the last update
+        match_ids = []
+        start = 0
 
-        match_ids.extend(page)
+        while True:
+            page = self.riot_request(
+                url,
+                params={"start": start, "count": MATCH_COUNT}
+            )
 
-        if len(page) < MATCH_COUNT:
-            break
+            if not page:
+                break
 
-        start += len(page)
+            if last_game_id in page:
+                match_ids.extend(page[:page.index(last_game_id)])
+                break
 
-    return match_ids
+            match_ids.extend(page)
 
+            if len(page) < MATCH_COUNT:
+                break
 
-def get_match(match_id):
-    url = (
-        f"https://{REGION}.api.riotgames.com"
-        f"/lol/match/v5/matches/{match_id}"
-    )
+            start += len(page)
 
-    return riot_request(url)
+        return match_ids
+
+    def get_match(self, match_id):
+        url = (
+            f"https://{self.region}.api.riotgames.com"
+            f"/lol/match/v5/matches/{match_id}"
+        )
+
+        return self.riot_request(url)
