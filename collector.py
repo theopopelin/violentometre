@@ -165,7 +165,7 @@ def collect_all():
 
     # Upload the latest local JSON after processing all players
     try:
-        #upload_to_r2()
+        upload_to_r2()
         logging.info("Uploaded players.json to Cloudflare R2.")
     except Exception:
         logging.exception(
